@@ -1,13 +1,17 @@
 'use client'
 import { useEffect, useRef, useState } from 'react'
-import { motion } from 'framer-motion'
+import { motion, useInView, useScroll, useTransform } from 'framer-motion'
+import SmoothScroll from './components/SmoothScroll'
+import Cursor from './components/Cursor'
+import Preloader from './components/Preloader'
+import ProjectsList from './components/ProjectsList'
 
 const PROJECTS = [
   {
     num: '01',
     title: 'Ibda Voice',
     desc: 'An AI-powered audio engine for generating hyper-realistic voices and custom sound effects with studio-grade precision.',
-    tags: ['Next.js', 'PostgreSQL', 'Tailwind', 'GenAI','Stripe'],
+    tags: ['Next.js', 'PostgreSQL', 'Tailwind', 'GenAI', 'Stripe'],
     link: 'https://www.ibdavoice.com/',
     video: '/Ibdavoice.mp4',
   },
@@ -15,7 +19,7 @@ const PROJECTS = [
     num: '02',
     title: 'Ibda Films',
     desc: 'A cinematic AI generation platform that transforms text-based prompts into high-fidelity, production-ready film sequences.',
-    tags: ['Next.js', 'PostgreSQL', 'Tailwind', 'GenAI','Stripe'],
+    tags: ['Next.js', 'PostgreSQL', 'Tailwind', 'GenAI', 'Stripe'],
     link: 'https://ibdafilms.com/',
     video: '/MISSION.mp4',
   },
@@ -23,7 +27,7 @@ const PROJECTS = [
     num: '03',
     title: 'Chillpal',
     desc: 'An empathetic AI companion designed for real-time mental health support, providing emotional guidance through deep learning.',
-    tags: ['Python','OpenAI','Tkinter','FastAPI'],
+    tags: ['Python', 'OpenAI', 'Tkinter', 'FastAPI'],
     link: 'https://www.linkedin.com/feed/update/urn:li:activity:7325567739824156672/',
     video: '/Chillpal.mp4',
   },
@@ -35,248 +39,300 @@ const TICKER_ITEMS = [
   'REST APIs', 'Figma to Code', 'Clean Architecture', 'Fast Delivery',
 ]
 
-function inView(el) {
-  const r = el.getBoundingClientRect()
-  return r.top < window.innerHeight - 80
+const MANIFESTO = [
+  { t: 'I', hl: false }, { t: 'build', hl: true }, { t: 'fast,', hl: false },
+  { t: 'precise,', hl: true }, { t: 'production-ready', hl: true }, { t: 'products', hl: false },
+  { t: '—', hl: false }, { t: 'not', hl: false }, { t: 'templates.', hl: false },
+  { t: 'Every', hl: false }, { t: 'pixel,', hl: false }, { t: 'every', hl: false },
+  { t: 'interaction,', hl: false }, { t: 'engineered', hl: true }, { t: 'on', hl: false }, { t: 'purpose.', hl: true },
+]
+
+const STATS = [
+  { to: 3, suffix: '', label: 'Shipped Products' },
+  { to: 24, suffix: 'H', label: 'Avg. Response Time' },
+  { to: 100, suffix: '%', label: 'Client-Owned Code' },
+  { to: 5, suffix: '+', label: 'Core Technologies' },
+]
+
+const heroStagger = {
+  hidden: {},
+  show: { transition: { staggerChildren: 0.1, delayChildren: 0.2 } },
+}
+const fadeUp = {
+  hidden: { opacity: 0, y: 24 },
+  show: { opacity: 1, y: 0, transition: { duration: 0.7, ease: [0.16, 1, 0.3, 1] } },
+}
+const lineReveal = {
+  hidden: { y: '100%' },
+  show: { y: '0%', transition: { duration: 0.9, ease: [0.16, 1, 0.3, 1] } },
+}
+
+function Counter({ to, suffix }) {
+  const ref = useRef(null)
+  const inView = useInView(ref, { once: true, margin: '-100px' })
+  const [val, setVal] = useState(0)
+
+  useEffect(() => {
+    if (!inView) return
+    const start = performance.now()
+    const duration = 1100
+    let raf
+    const tick = (now) => {
+      const p = Math.min(1, (now - start) / duration)
+      setVal(Math.round(p * to))
+      if (p < 1) raf = requestAnimationFrame(tick)
+    }
+    raf = requestAnimationFrame(tick)
+    return () => cancelAnimationFrame(raf)
+  }, [inView, to])
+
+  return <span ref={ref}>{val}{suffix}</span>
 }
 
 export default function Home() {
-  const dotRef = useRef(null)
-  const ringRef = useRef(null)
   const navRef = useRef(null)
+  const heroRef = useRef(null)
   const [sending, setSending] = useState(false)
   const [sent, setSent] = useState(false)
   const [form, setForm] = useState({ name: '', email: '', budget: '', message: '' })
 
-  useEffect(() => {
-    const move = (e) => {
-      if (dotRef.current) { dotRef.current.style.left = e.clientX + 'px'; dotRef.current.style.top = e.clientY + 'px' }
-      if (ringRef.current) { ringRef.current.style.left = e.clientX + 'px'; ringRef.current.style.top = e.clientY + 'px' }
-    }
-    window.addEventListener('mousemove', move)
-    return () => window.removeEventListener('mousemove', move)
-  }, [])
+  const { scrollYProgress: heroProgress } = useScroll({
+    target: heroRef,
+    offset: ['start start', 'end start'],
+  })
+  const heroY = useTransform(heroProgress, [0, 1], ['0%', '20%'])
+  const heroScale = useTransform(heroProgress, [0, 1], [1, 1.15])
 
   useEffect(() => {
     const onScroll = () => {
       if (navRef.current) navRef.current.classList.toggle('scrolled', window.scrollY > 50)
     }
-    window.addEventListener('scroll', onScroll)
+    window.addEventListener('scroll', onScroll, { passive: true })
     return () => window.removeEventListener('scroll', onScroll)
   }, [])
 
   useEffect(() => {
-    const reveals = document.querySelectorAll('[data-reveal]')
-    const check = () => reveals.forEach(el => { if (inView(el)) el.classList.add('revealed') })
-    check()
-    window.addEventListener('scroll', check, { passive: true })
-    return () => window.removeEventListener('scroll', check)
+    let resetTimer
+    const onWheel = (e) => {
+      const velocity = Math.min(3, Math.abs(e.deltaY) / 100)
+      const duration = Math.max(6, 22 - velocity * 5)
+      document.documentElement.style.setProperty('--ticker-duration', `${duration}s`)
+      clearTimeout(resetTimer)
+      resetTimer = setTimeout(() => {
+        document.documentElement.style.setProperty('--ticker-duration', '22s')
+      }, 400)
+    }
+    window.addEventListener('wheel', onWheel, { passive: true })
+    return () => {
+      window.removeEventListener('wheel', onWheel)
+      clearTimeout(resetTimer)
+    }
   }, [])
 
   const handleSubmit = async (e) => {
-  e.preventDefault();
-  setSending(true);
+    e.preventDefault()
+    setSending(true)
 
-  // 1. Prepare the data
-  const formData = {
-    ...form,
-    access_key: "cf021824-61d4-40ce-a74e-ad62a660cbbc", // Paste your key here
-    subject: `New Portfolio Inquiry from ${form.name}`,
-  };
-
-  // 2. Send it to the API
-  try {
-    const response = await fetch("https://api.web3forms.com/submit", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Accept: "application/json",
-      },
-      body: JSON.stringify(formData),
-    });
-
-    const result = await response.json();
-
-    if (result.success) {
-      setSent(true);
-      // Reset form after sending
-      setForm({ name: '', email: '', budget: '', message: '' });
+    const formData = {
+      ...form,
+      access_key: 'cf021824-61d4-40ce-a74e-ad62a660cbbc',
+      subject: `New Portfolio Inquiry from ${form.name}`,
     }
-  } catch (error) {
-    console.error("Form error:", error);
-    alert("Something went wrong. Please try again.");
-  } finally {
-    setSending(false);
+
+    try {
+      const response = await fetch('https://api.web3forms.com/submit', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
+        },
+        body: JSON.stringify(formData),
+      })
+
+      const result = await response.json()
+
+      if (result.success) {
+        setSent(true)
+        setForm({ name: '', email: '', budget: '', message: '' })
+      }
+    } catch (error) {
+      console.error('Form error:', error)
+      alert('Something went wrong. Please try again.')
+    } finally {
+      setSending(false)
+    }
   }
-};
 
   const tickerAll = [...TICKER_ITEMS, ...TICKER_ITEMS]
 
   return (
     <>
-      <div id="cur-dot" ref={dotRef} />
-      <div id="cur-ring" ref={ringRef} />
+      <Preloader />
+      <Cursor />
 
-      <nav ref={navRef}>
-        <a href="#" className="nav-logo">HX CODES<span style={{ color: 'var(--muted)' }}>.</span></a>
-        <a href="#contact" className="nav-cta">Hire Me</a>
-      </nav>
+      <SmoothScroll>
+        <nav ref={navRef}>
+          <a href="#" className="nav-logo"><span data-scramble>HX CODES</span><span style={{ color: 'var(--muted)' }}>.</span></a>
+          <a href="#contact" className="nav-cta" data-magnetic data-scramble>Hire Me</a>
+        </nav>
 
-      <section id="hero">
-        <img
-          className="hero-img"
-          src="/silver.png"
-          alt="Hero Background"
-        />
-        <div className="hero-grid" />
-        <div style={{ position: 'relative', zIndex: 1 }}>
-          <div className="avail fade-up d1">
-            <span className="avail-dot" />
-            Available for freelance work
+        <section id="hero" ref={heroRef}>
+          <div className="hero-img-wrap">
+            <motion.img
+              className="hero-img"
+              src="/silver.png"
+              alt="Hero Background"
+              style={{ y: heroY, scale: heroScale }}
+            />
           </div>
-          <h1 className="hero-h1 fade-up d2">
-            I CRAFT<br />
-            <span className="outline">DIGITAL</span><br />
-            PRODUCTS.
-          </h1>
-          <p className="hero-sub fade-up d3">
-            Web apps &amp; mobile experiences — precision-built,<br />
-            on time, and built to convert.
+          <motion.div className="hero-content" variants={heroStagger} initial="hidden" animate="show">
+            
+            <h1 className="hero-h1">
+              <span className="line"><motion.span variants={lineReveal} style={{ display: 'block' }}>I CRAFT</motion.span></span>
+              <span className="line"><motion.span variants={lineReveal} className="outline" style={{ display: 'block' }}>DIGITAL</motion.span></span>
+              <span className="line"><motion.span variants={lineReveal} style={{ display: 'block' }}>PRODUCTS.</motion.span></span>
+            </h1>
+            <motion.p className="hero-sub" variants={fadeUp}>
+              Web apps &amp; mobile experiences — precision-built,<br />
+              on time, and built to convert.
+            </motion.p>
+            <motion.div className="hero-btns" variants={fadeUp}>
+              <a href="#projects" className="btn-primary" data-magnetic data-scramble>See My Work</a>
+              <a href="#contact" className="btn-ghost" data-magnetic data-scramble>Start a Project →</a>
+            </motion.div>
+          </motion.div>
+          <div className="scroll-line"><span>scroll</span></div>
+        </section>
+
+        <div className="ticker-wrap">
+          <div className="ticker-inner">
+            {tickerAll.map((item, i) => (
+              <span className="ticker-item" key={i}>{item}</span>
+            ))}
+          </div>
+        </div>
+
+        <section className="section">
+          <p className="section-label">What I Believe</p>
+          <p className="manifesto-text">
+            {MANIFESTO.map((w, i) => (
+              <motion.span
+                key={i}
+                className={`word${w.hl ? ' hl' : ''}`}
+                initial={{ opacity: 0, y: 10, filter: 'blur(6px)' }}
+                whileInView={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+                viewport={{ once: true, margin: '-80px' }}
+                transition={{ duration: 0.5, delay: i * 0.025 }}
+                style={{ display: 'inline-block', marginRight: '0.35em' }}
+              >
+                {w.t}
+              </motion.span>
+            ))}
           </p>
-          <div className="hero-btns fade-up d4">
-            <a href="#projects" className="btn-primary">See My Work</a>
-            <a href="#contact" className="btn-ghost">Start a Project →</a>
+          <div className="stats-row">
+            {STATS.map((s, i) => (
+              <motion.div
+                key={s.label}
+                className="stat-item"
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.1, duration: 0.5 }}
+              >
+                <div className="stat-num"><Counter to={s.to} suffix={s.suffix} /></div>
+                <div className="stat-label">{s.label}</div>
+              </motion.div>
+            ))}
           </div>
-        </div>
-        <div className="scroll-line"><span>scroll</span></div>
-      </section>
+        </section>
 
-      <div className="ticker-wrap">
-        <div className="ticker-inner">
-          {tickerAll.map((item, i) => (
-            <span className="ticker-item" key={i}>{item}</span>
-          ))}
-        </div>
-      </div>
+        <section id="projects" className="section">
+          <p className="section-label">Selected Work</p>
+          <ProjectsList projects={PROJECTS} />
+        </section>
 
-      <section id="projects" className="section">
-        <p className="section-label">Selected Work</p>
-        <div className="projects-grid">
-          {PROJECTS.map((p, i) => (
-  <motion.a // 1. Changed from motion.div
-    key={p.num}
-    href={p.link} // 2. Added the link from your PROJECTS data
-    target="_blank" // 3. Opens in a new tab
-    rel="noopener noreferrer" // 4. Essential for security
-    className="project-card"
-    initial={{ opacity: 0, y: 24 }}
-    whileInView={{ opacity: 1, y: 0 }}
-    viewport={{ once: true }}
-    transition={{ delay: i * 0.1, duration: 0.55 }}
-  >
-    {/* COLUMN 1: TEXT */}
-    <div>
-      <p className="project-num">{p.num}</p>
-      <h3 className="project-title">{p.title}</h3>
-      <p className="project-desc">{p.desc}</p>
-      <div className="project-tags">
-        {p.tags.map(t => <span className="tag" key={t}>{t}</span>)}
-      </div>
-    </div>
-
-    {/* COLUMN 2: VIDEO */}
-    <div className="project-video-wrap">
-      <video src={p.video} autoPlay muted loop playsInline />
-    </div>
-
-    {/* COLUMN 3: ARROW */}
-    <span className="project-arrow">↗</span>
-  </motion.a> // 5. Changed closing tag
-))}
-        </div>
-      </section>
-
-      <section id="contact" className="section" style={{ textAlign: 'center' }}>
-        <p className="section-label" style={{ justifyContent: 'center' }}>Get In Touch</p>
-        <motion.h2
-          className="contact-h2"
-          initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }} transition={{ duration: 0.6 }}
-        >
-          LET'S<br /><span className="outline">BUILD</span><br />TOGETHER
-        </motion.h2>
-        <p className="contact-sub">
-          Got a project in mind? Tell me about it.<br />
-          I respond within 24 hours.
-        </p>
-        <motion.div
-          className="form-wrap"
-          initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }} transition={{ delay: 0.2, duration: 0.55 }}
-        >
-          {sent ? (
-            <div className="form-success">
-              <p>✦</p>
-              <p>Message received — I'll be in touch within 24 hours.</p>
-            </div>
-          ) : (
-            <form onSubmit={handleSubmit}>
-              <div className="form-row">
-                <div className="form-field">
-                  <label>Name</label>
-                  <input
-                    type="text" placeholder="John Doe" required
-                    value={form.name}
-                    onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
-                  />
+        <section id="contact" className="section" style={{ textAlign: 'center' }}>
+          <p className="section-label" style={{ justifyContent: 'center' }}>Get In Touch</p>
+          <motion.h2
+            className="contact-h2"
+            initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }} transition={{ duration: 0.6 }}
+          >
+            LET'S<br /><span className="outline">BUILD</span><br />TOGETHER
+          </motion.h2>
+          <p className="contact-sub">
+            Got a project in mind? Tell me about it.<br />
+            I respond within 24 hours.
+          </p>
+          <motion.div
+            className="form-wrap"
+            initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }} transition={{ delay: 0.2, duration: 0.55 }}
+          >
+            {sent ? (
+              <div className="form-success">
+                <p>✦</p>
+                <p>Message received — I'll be in touch within 24 hours.</p>
+              </div>
+            ) : (
+              <form onSubmit={handleSubmit}>
+                <div className="form-row">
+                  <div className="form-field">
+                    <label>Name</label>
+                    <input
+                      type="text" placeholder="John Doe" required
+                      value={form.name}
+                      onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
+                    />
+                  </div>
+                  <div className="form-field">
+                    <label>Email</label>
+                    <input
+                      type="email" placeholder="john@company.com" required
+                      value={form.email}
+                      onChange={e => setForm(f => ({ ...f, email: e.target.value }))}
+                    />
+                  </div>
                 </div>
                 <div className="form-field">
-                  <label>Email</label>
-                  <input
-                    type="email" placeholder="john@company.com" required
-                    value={form.email}
-                    onChange={e => setForm(f => ({ ...f, email: e.target.value }))}
+                  <label>Project Budget</label>
+                  <select
+                    value={form.budget}
+                    onChange={e => setForm(f => ({ ...f, budget: e.target.value }))}
+                  >
+                    <option value="">Select a range</option>
+                    <option>Under $1,000</option>
+                    <option>$1,000 – $5,000</option>
+                    <option>$5,000 – $15,000</option>
+                    <option>$15,000+</option>
+                    <option>Let's discuss</option>
+                  </select>
+                </div>
+                <div className="form-field">
+                  <label>Tell me about your project</label>
+                  <textarea
+                    placeholder="What are you building? What's the timeline?" required
+                    value={form.message}
+                    onChange={e => setForm(f => ({ ...f, message: e.target.value }))}
                   />
                 </div>
-              </div>
-              <div className="form-field">
-                <label>Project Budget</label>
-                <select
-                  value={form.budget}
-                  onChange={e => setForm(f => ({ ...f, budget: e.target.value }))}
-                >
-                  <option value="">Select a range</option>
-                  <option>Under $1,000</option>
-                  <option>$1,000 – $5,000</option>
-                  <option>$5,000 – $15,000</option>
-                  <option>$15,000+</option>
-                  <option>Let's discuss</option>
-                </select>
-              </div>
-              <div className="form-field">
-                <label>Tell me about your project</label>
-                <textarea
-                  placeholder="What are you building? What's the timeline?" required
-                  value={form.message}
-                  onChange={e => setForm(f => ({ ...f, message: e.target.value }))}
-                />
-              </div>
-              <button type="submit" className="form-submit" disabled={sending}>
-                {sending ? 'Sending...' : 'Send Message ↗'}
-              </button>
-            </form>
-          )}
-        </motion.div>
-      </section>
+                <button type="submit" className="form-submit" disabled={sending} data-magnetic>
+                  {sending ? 'Sending...' : 'Send Message ↗'}
+                </button>
+              </form>
+            )}
+          </motion.div>
+        </section>
 
-      <footer>
-        <p>© 2026 Your Name. All rights reserved.</p>
-        <div className="footer-links">
-          <a href="https://github.com/HammasCodes">GitHub</a>
-          <a href="https://www.linkedin.com/in/mohammad-hammas-426062233/?skipRedirect=true">LinkedIn</a>
-          <a href="mailto:hammasansari641@gmail.com">Email</a>
-        </div>
-      </footer>
+        <footer>
+          <p>© 2026 HX Codes. All rights reserved.</p>
+          <div className="footer-links">
+            <a href="https://github.com/HammasCodes" data-scramble>GitHub</a>
+            <a href="https://www.linkedin.com/in/mohammad-hammas-426062233/?skipRedirect=true" data-scramble>LinkedIn</a>
+            <a href="mailto:hammasansari641@gmail.com" data-scramble>Email</a>
+          </div>
+        </footer>
+      </SmoothScroll>
     </>
   )
 }
