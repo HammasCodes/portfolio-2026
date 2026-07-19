@@ -5,27 +5,28 @@ import { useReducedMotion } from './hooks'
 
 export default function Preloader() {
   const reduced = useReducedMotion()
-  const [show, setShow] = useState(false)
+  const [show, setShow] = useState(true)
   const [count, setCount] = useState(0)
-  const [ready, setReady] = useState(false)
 
   useEffect(() => {
     if (sessionStorage.getItem('hx-loaded')) {
-      setReady(true)
+      setShow(false)
       return
     }
-    setShow(true)
-    setReady(true)
     sessionStorage.setItem('hx-loaded', '1')
   }, [])
 
   useEffect(() => {
-    if (!show || reduced) return
+    if (!show) return
+    if (reduced) {
+      setShow(false)
+      return
+    }
     const start = performance.now()
     const duration = 1100
     let raf
     const tick = (now) => {
-      const p = Math.min(1, (now - start) / duration)
+      const p = Math.min(1, Math.max(0, (now - start) / duration))
       setCount(Math.round(p * 100))
       if (p < 1) raf = requestAnimationFrame(tick)
       else setTimeout(() => setShow(false), 250)
@@ -33,8 +34,6 @@ export default function Preloader() {
     raf = requestAnimationFrame(tick)
     return () => cancelAnimationFrame(raf)
   }, [show, reduced])
-
-  if (!ready || reduced) return null
 
   return (
     <AnimatePresence>

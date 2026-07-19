@@ -4,34 +4,10 @@ import { motion, useInView, useScroll, useTransform } from 'framer-motion'
 import SmoothScroll from './components/SmoothScroll'
 import Cursor from './components/Cursor'
 import Preloader from './components/Preloader'
+import Nav from './components/Nav'
+import Footer from './components/Footer'
 import ProjectsList from './components/ProjectsList'
-
-const PROJECTS = [
-  {
-    num: '01',
-    title: 'Ibda Voice',
-    desc: 'An AI-powered audio engine for generating hyper-realistic voices and custom sound effects with studio-grade precision.',
-    tags: ['Next.js', 'PostgreSQL', 'Tailwind', 'GenAI', 'Stripe'],
-    link: 'https://www.ibdavoice.com/',
-    video: '/Ibdavoice.mp4',
-  },
-  {
-    num: '02',
-    title: 'Ibda Films',
-    desc: 'A cinematic AI generation platform that transforms text-based prompts into high-fidelity, production-ready film sequences.',
-    tags: ['Next.js', 'PostgreSQL', 'Tailwind', 'GenAI', 'Stripe'],
-    link: 'https://ibdafilms.com/',
-    video: '/MISSION.mp4',
-  },
-  {
-    num: '03',
-    title: 'Chillpal',
-    desc: 'An empathetic AI companion designed for real-time mental health support, providing emotional guidance through deep learning.',
-    tags: ['Python', 'OpenAI', 'Tkinter', 'FastAPI'],
-    link: 'https://www.linkedin.com/feed/update/urn:li:activity:7325567739824156672/',
-    video: '/Chillpal.mp4',
-  },
-]
+import { PROJECTS } from './projects/data'
 
 const TICKER_ITEMS = [
   'Next.js', 'React', 'React Native', 'Node.js',
@@ -48,7 +24,7 @@ const MANIFESTO = [
 ]
 
 const STATS = [
-  { to: 3, suffix: '', label: 'Shipped Products' },
+  { to: PROJECTS.length, suffix: '', label: 'Shipped Products' },
   { to: 24, suffix: 'H', label: 'Avg. Response Time' },
   { to: 100, suffix: '%', label: 'Client-Owned Code' },
   { to: 5, suffix: '+', label: 'Core Technologies' },
@@ -90,7 +66,6 @@ function Counter({ to, suffix }) {
 }
 
 export default function Home() {
-  const navRef = useRef(null)
   const heroRef = useRef(null)
   const [sending, setSending] = useState(false)
   const [sent, setSent] = useState(false)
@@ -102,14 +77,6 @@ export default function Home() {
   })
   const heroY = useTransform(heroProgress, [0, 1], ['0%', '20%'])
   const heroScale = useTransform(heroProgress, [0, 1], [1, 1.15])
-
-  useEffect(() => {
-    const onScroll = () => {
-      if (navRef.current) navRef.current.classList.toggle('scrolled', window.scrollY > 50)
-    }
-    window.addEventListener('scroll', onScroll, { passive: true })
-    return () => window.removeEventListener('scroll', onScroll)
-  }, [])
 
   useEffect(() => {
     let resetTimer
@@ -171,10 +138,7 @@ export default function Home() {
       <Cursor />
 
       <SmoothScroll>
-        <nav ref={navRef}>
-          <a href="#" className="nav-logo"><span data-scramble>HX CODES</span><span style={{ color: 'var(--muted)' }}>.</span></a>
-          <a href="#contact" className="nav-cta" data-magnetic data-scramble>Hire Me</a>
-        </nav>
+        <Nav />
 
         <section id="hero" ref={heroRef}>
           <div className="hero-img-wrap">
@@ -324,14 +288,7 @@ export default function Home() {
           </motion.div>
         </section>
 
-        <footer>
-          <p>© 2026 HX Codes. All rights reserved.</p>
-          <div className="footer-links">
-            <a href="https://github.com/HammasCodes" data-scramble>GitHub</a>
-            <a href="https://www.linkedin.com/in/mohammad-hammas-426062233/?skipRedirect=true" data-scramble>LinkedIn</a>
-            <a href="mailto:hammasansari641@gmail.com" data-scramble>Email</a>
-          </div>
-        </footer>
+        <Footer />
       </SmoothScroll>
     </>
   )

@@ -1,7 +1,17 @@
 'use client'
 import { useRef, useState } from 'react'
+import Link from 'next/link'
 import { motion, AnimatePresence, useMotionValue, useSpring } from 'framer-motion'
 import { usePointerFine } from './hooks'
+
+const MotionLink = motion.create(Link)
+
+function ProjectMedia({ project }) {
+  if (project.image) {
+    return <img src={project.image} alt={project.title} />
+  }
+  return <video src={project.video} autoPlay muted loop playsInline />
+}
 
 export default function ProjectsList({ projects }) {
   const fine = usePointerFine()
@@ -28,36 +38,46 @@ export default function ProjectsList({ projects }) {
       onMouseMove={fine ? handleMove : undefined}
       onMouseLeave={fine ? () => setActive(null) : undefined}
     >
-      {projects.map((p, i) => (
-        <motion.a
-          key={p.num}
-          href={p.link}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="project-row"
-          onMouseEnter={fine ? () => setActive(i) : undefined}
-          initial={{ opacity: 0, y: 24 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ delay: i * 0.08, duration: 0.5 }}
-        >
-          <span className="project-row-num">{p.num}</span>
-          <span className="project-row-title" data-scramble>{p.title}</span>
-          <span className="project-row-tags">
-            {p.tags.map((t) => (
-              <span className="tag" key={t}>{t}</span>
-            ))}
-          </span>
-          <span className="project-row-arrow">↗</span>
+      {projects.map((p, i) => {
+        const rowProps = {
+          className: 'project-row',
+          onMouseEnter: fine ? () => setActive(i) : undefined,
+          initial: { opacity: 0, y: 24 },
+          whileInView: { opacity: 1, y: 0 },
+          viewport: { once: true },
+          transition: { delay: i * 0.08, duration: 0.5 },
+        }
 
-          {!fine && (
-            <div className="project-row-mobile-video">
-              <video src={p.video} autoPlay muted loop playsInline />
-              <p className="project-row-desc">{p.desc}</p>
-            </div>
-          )}
-        </motion.a>
-      ))}
+        const content = (
+          <>
+            <span className="project-row-num">{p.num}</span>
+            <span className="project-row-title" data-scramble>{p.title}</span>
+            <span className="project-row-tags">
+              {p.tags.map((t) => (
+                <span className="tag" key={t}>{t}</span>
+              ))}
+            </span>
+            <span className="project-row-arrow">↗</span>
+
+            {!fine && (
+              <div className="project-row-mobile-video">
+                <ProjectMedia project={p} />
+                <p className="project-row-desc">{p.desc}</p>
+              </div>
+            )}
+          </>
+        )
+
+        return p.caseStudy ? (
+          <MotionLink key={p.num} href={`/projects/${p.slug}`} {...rowProps}>
+            {content}
+          </MotionLink>
+        ) : (
+          <motion.a key={p.num} href={p.link} target="_blank" rel="noopener noreferrer" {...rowProps}>
+            {content}
+          </motion.a>
+        )
+      })}
 
       {fine && (
         <motion.div
@@ -74,7 +94,7 @@ export default function ProjectsList({ projects }) {
                 exit={{ opacity: 0, scale: 0.85 }}
                 transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
               >
-                <video src={activeProject.video} autoPlay muted loop playsInline />
+                <ProjectMedia project={activeProject} />
                 <p>{activeProject.desc}</p>
               </motion.div>
             )}

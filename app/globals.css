@@ -347,7 +347,8 @@ nav.scrolled {
 .project-row-mobile-video {
   order: 10; width: 100%; margin-top: .5rem;
 }
-.project-row-mobile-video video {
+.project-row-mobile-video video,
+.project-row-mobile-video img {
   width: 100%; aspect-ratio: 16/9; object-fit: cover;
   border: 1px solid var(--border-hi); border-radius: 4px;
   background: #000;
@@ -376,7 +377,8 @@ nav.scrolled {
     box-shadow: 0 30px 60px rgba(0,0,0,.5);
     position: relative;
   }
-  .project-preview-inner video {
+  .project-preview-inner video,
+  .project-preview-inner img {
     width: 100%; height: 100%; object-fit: cover;
   }
   .project-preview-inner p {
@@ -386,6 +388,104 @@ nav.scrolled {
     background: linear-gradient(to top, rgba(0,0,0,.85), transparent);
   }
 }
+
+/* ── Project case study ── */
+.project-hero {
+  padding-top: 7rem;
+  border-top: none;
+}
+@media (min-width: 768px) {
+  .project-hero { padding-top: 9rem; }
+}
+.back-link {
+  display: inline-block;
+  font-family: var(--font-syne-mono), monospace;
+  font-size: .68rem; letter-spacing: .15em; text-transform: uppercase;
+  color: var(--muted-hi); text-decoration: none;
+  margin-bottom: 2.5rem;
+  transition: color .2s;
+}
+.back-link:hover { color: #fff; }
+.project-hero-num {
+  font-family: var(--font-syne-mono), monospace;
+  font-size: .8rem; color: var(--muted); margin-bottom: 1rem;
+}
+.project-hero-title { margin-bottom: 1rem; }
+.case-tagline {
+  font-size: 1rem; color: var(--muted-hi); max-width: 560px;
+  line-height: 1.6; margin-bottom: 1.75rem;
+}
+.project-hero-tags { margin-bottom: 2.5rem; }
+.project-hero-tags.project-row-tags,
+.case-section > .project-row-tags {
+  order: 0; width: auto; max-width: none; justify-content: flex-start;
+}
+
+.project-hero-media {
+  max-width: 1100px; margin: 0 auto; padding: 0 1.25rem 4.5rem;
+}
+@media (min-width: 768px) { .project-hero-media { padding: 0 3rem 6rem; } }
+.project-hero-media video,
+.project-hero-media img {
+  width: 100%; aspect-ratio: 16/9; object-fit: cover;
+  border: 1px solid var(--border-hi); border-radius: 8px;
+  background: #000;
+  box-shadow: 0 40px 80px rgba(0,0,0,.5);
+}
+
+.case-body-section { padding-top: 0; }
+.case-summary { max-width: 780px; margin-bottom: 3rem; }
+.case-section {
+  padding: 2rem 0; border-top: 1px solid var(--border);
+  max-width: 780px;
+}
+.case-body {
+  font-size: .92rem; color: var(--muted-hi); line-height: 1.75; max-width: 720px;
+}
+.case-list {
+  list-style: none; display: flex; flex-direction: column; gap: .85rem;
+}
+.case-list li {
+  font-size: .92rem; color: var(--muted-hi); line-height: 1.7;
+  padding-left: 1.4rem; position: relative;
+}
+.case-list li::before {
+  content: '—'; position: absolute; left: 0; color: var(--muted);
+}
+.case-meta {
+  font-family: var(--font-syne-mono), monospace;
+  font-size: .72rem; letter-spacing: .05em; color: var(--muted);
+  font-style: italic; margin-top: 2rem;
+}
+
+.case-cta { text-align: center; border-top: 1px solid var(--border); }
+.case-cta .contact-sub { margin-bottom: 1.75rem; }
+
+.case-nav {
+  display: grid; grid-template-columns: 1fr; border-top: 1px solid var(--border);
+}
+@media (min-width: 768px) { .case-nav { grid-template-columns: 1fr 1fr; } }
+.case-nav-link {
+  display: flex; flex-direction: column; gap: .6rem;
+  padding: 2.5rem 1.25rem; text-decoration: none; color: inherit;
+  border-bottom: 1px solid var(--border);
+  transition: background .3s;
+}
+@media (min-width: 768px) {
+  .case-nav-link { padding: 3rem; border-bottom: none; }
+  .case-nav-prev { border-right: 1px solid var(--border); }
+  .case-nav-next { text-align: right; align-items: flex-end; }
+}
+.case-nav-link:hover { background: var(--surface); }
+.case-nav-label {
+  font-family: var(--font-syne-mono), monospace;
+  font-size: .65rem; letter-spacing: .2em; text-transform: uppercase; color: var(--muted);
+}
+.case-nav-title {
+  font-size: clamp(1.3rem, 3vw, 1.8rem); font-weight: 700; color: #fff;
+  transition: color .3s;
+}
+.case-nav-link:hover .case-nav-title { color: var(--muted-hi); }
 
 /* ── Contact ── */
 #contact { text-align: center; }
