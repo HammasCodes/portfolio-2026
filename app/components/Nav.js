@@ -15,7 +15,7 @@ export default function Nav() {
   }, [])
 
   return (
-    <nav ref={navRef}>
+    <nav className="site-nav" ref={navRef}>
       <Link href="/" className="nav-logo">
         <span data-scramble>HX CODES</span><span style={{ color: 'var(--muted)' }}>.</span>
       </Link>

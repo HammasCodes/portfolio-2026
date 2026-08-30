@@ -42,30 +42,30 @@ CASE STUDY OF PROJECTS
 
 
 1. IBDA Films
-Tagline: AI Film Studio — Script to Screen in Minutes
+Tagline: AI Film Studio, script to screen in minutes
 What it is: An AI-powered film studio platform that lets creators generate cinematic movies directly from a script, with character consistency and 4K output.
 Key features:
 
-Auto Generation — AI-powered scene creation from script input
-Reference Images — maintains character consistency across scenes
-Smart Editor — built-in professional editing tools
-Character Generate — create unique AI characters
-Retake & Seed Lock — iterate on shots with precision, lock a seed for consistency
-Language & Duration controls — customizable output settings
+Auto Generation: AI-powered scene creation from script input
+Reference Images: maintains character consistency across scenes
+Smart Editor: built-in professional editing tools
+Character Generate: create unique AI characters
+Retake & Seed Lock: iterate on shots with precision, lock a seed for consistency
+Language & Duration controls: customizable output settings
 Multiple AI model access for generation
 
-Business model: Subscription tiers — Starter ($19/mo, 900 credits, ~3 min video), Creator ($45/mo, 2,130 credits, ~7 min video, most popular), Studio ($99/mo, 4,690 credits, ~15 min video). All tiers include 4K image generation, fast generations, and commercial licensing.
+Business model: Subscription tiers. Starter ($19/mo, 900 credits, ~3 min video), Creator ($45/mo, 2,130 credits, ~7 min video, most popular), Studio ($99/mo, 4,690 credits, ~15 min video). All tiers include 4K image generation, fast generations, and commercial licensing.
 Showcase content: Demo films include "The Golden Strike," "Respect," "Future Idol," and "Mythological Future War."
 Part of: IbdaVerse ecosystem (parent brand), IbdaVerse Pvt Ltd, launched 2026.
 
 2. IBDA Voice
 Tagline: Where words get their glow-up
 What it is: An AI voice synthesis and sound design platform, built as a companion product to IBDA Films within the IbdaVerse ecosystem.
-Mission: Democratizing high-fidelity audio, video, and image creation — giving independent creators access to Hollywood-grade voice synthesis and sound design without expensive studios or voice talent for every script change.
+Mission: Democratizing high-fidelity audio, video, and image creation, giving independent creators access to Hollywood-grade voice synthesis and sound design without expensive studios or voice talent for every script change.
 Key value props:
 
 Studio-grade audio synthesis for cinematic delivery and consistency
-Built for fast iteration — prototype dialogue, ship polished performances without production bottlenecks
+Built for fast iteration: prototype dialogue, ship polished performances without production bottlenecks
 Designed to integrate into a full creative pipeline (film + voice + sound)
 
 
@@ -83,13 +83,13 @@ Tech stack: Astro, Supabase, Gemini API
 No login, no ads between the question and the answer, free to use.
 
 4. InstaYTDownload.com
-Tagline: Free Instagram Reels & YouTube Video Downloader — No Registration
+Tagline: Free Instagram Reels & YouTube Video Downloader, no registration
 What it is: A dual-platform video downloader supporting both Instagram and YouTube in a single tool, differentiating from most downloaders that only handle one platform.
 Key features:
 
 Instagram: Reels, Stories, Posts, IGTV, Carousels, Highlights
 YouTube: Regular videos, Shorts, Live Replays, Playlists, up to 4K, MP3 audio extraction (128/192/320kbps)
-Built-in clip trimmer — drag handles to select a start/end range before downloading
+Built-in clip trimmer: drag handles to select a start/end range before downloading
 Quality selector shows exact file size before download
 No watermarks, no login required, no credential risk (only public content accessed)
 Privacy-first: URLs and downloads are never logged or stored

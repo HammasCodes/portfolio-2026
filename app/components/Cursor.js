@@ -2,7 +2,7 @@
 import { useEffect, useRef } from 'react'
 import { usePointerFine } from './hooks'
 
-const SCRAMBLE_CHARS = '!<>-_\\/[]{}—=+*^?#________'
+const SCRAMBLE_CHARS = '!<>-_\\/[]{}=+*^?#________'
 
 function scramble(el) {
   const original = el.dataset.text || el.textContent
@@ -32,6 +32,7 @@ export default function Cursor() {
   const fine = usePointerFine()
   const dotRef = useRef(null)
   const ringRef = useRef(null)
+  const labelRef = useRef(null)
   const pos = useRef({ x: 0, y: 0 })
   const ring = useRef({ x: 0, y: 0 })
   const magnetTarget = useRef(null)
@@ -65,6 +66,11 @@ export default function Cursor() {
       if (ringRef.current) {
         ringRef.current.style.transform = `translate(${ring.current.x}px, ${ring.current.y}px)`
       }
+      if (labelRef.current) {
+        // Offset clear of the reticle so the chip never sits under the crosshair.
+        labelRef.current.style.transform =
+          `translate(${ring.current.x + 26}px, ${ring.current.y - 8}px)`
+      }
       raf = requestAnimationFrame(renderRing)
     }
     raf = requestAnimationFrame(renderRing)
@@ -86,9 +92,21 @@ export default function Cursor() {
 
     const onEnterScramble = (e) => scramble(e.currentTarget)
 
+    // Elements carrying data-cursor raise a label chip beside the reticle.
+    const onEnterLabel = (e) => {
+      const text = e.currentTarget.dataset.cursor
+      if (!labelRef.current || !ringRef.current) return
+      labelRef.current.textContent = text
+      labelRef.current.classList.add('cur-label--on')
+    }
+    const onLeaveLabel = () => {
+      labelRef.current?.classList.remove('cur-label--on')
+    }
+
     const magnets = Array.from(document.querySelectorAll('[data-magnetic]'))
     const hoverables = Array.from(document.querySelectorAll('a, button'))
     const scramblers = Array.from(document.querySelectorAll('[data-scramble]'))
+    const labelled = Array.from(document.querySelectorAll('[data-cursor]'))
 
     magnets.forEach((el) => {
       el.addEventListener('mouseenter', onEnterMagnet)
@@ -99,6 +117,10 @@ export default function Cursor() {
       el.addEventListener('mouseleave', onLeaveHover)
     })
     scramblers.forEach((el) => el.addEventListener('mouseenter', onEnterScramble))
+    labelled.forEach((el) => {
+      el.addEventListener('mouseenter', onEnterLabel)
+      el.addEventListener('mouseleave', onLeaveLabel)
+    })
 
     window.addEventListener('mousemove', move)
 
@@ -115,6 +137,10 @@ export default function Cursor() {
         el.removeEventListener('mouseleave', onLeaveHover)
       })
       scramblers.forEach((el) => el.removeEventListener('mouseenter', onEnterScramble))
+      labelled.forEach((el) => {
+        el.removeEventListener('mouseenter', onEnterLabel)
+        el.removeEventListener('mouseleave', onLeaveLabel)
+      })
     }
   }, [fine])
 
@@ -123,7 +149,10 @@ export default function Cursor() {
   return (
     <>
       <div id="cur-dot" ref={dotRef} />
-      <div id="cur-ring" ref={ringRef} />
+      <div id="cur-ring" ref={ringRef}>
+        <i /><i /><i /><i />
+      </div>
+      <div id="cur-label" ref={labelRef} />
     </>
   )
 }

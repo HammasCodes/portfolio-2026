@@ -29,7 +29,7 @@ export default function Preloader() {
       const p = Math.min(1, Math.max(0, (now - start) / duration))
       setCount(Math.round(p * 100))
       if (p < 1) raf = requestAnimationFrame(tick)
-      else setTimeout(() => setShow(false), 250)
+      else setTimeout(() => setShow(false), 260)
     }
     raf = requestAnimationFrame(tick)
     return () => cancelAnimationFrame(raf)
@@ -42,10 +42,17 @@ export default function Preloader() {
           className="preloader"
           initial={{ opacity: 1 }}
           exit={{ clipPath: 'inset(0 0 100% 0)' }}
-          transition={{ duration: 0.7, ease: [0.83, 0, 0.17, 1] }}
+          transition={{ duration: 0.75, ease: [0.83, 0, 0.17, 1] }}
         >
-          <div className="preloader-mark">HX</div>
-          <div className="preloader-count">{count}</div>
+          <div className="preloader-inner">
+            <div className="preloader-mark">
+              HX Codes
+            </div>
+            <div className="preloader-track">
+              <span className="preloader-fill" style={{ transform: `scaleX(${count / 100})` }} />
+            </div>
+            <div className="preloader-count">{String(count).padStart(3, '0')}</div>
+          </div>
         </motion.div>
       )}
     </AnimatePresence>

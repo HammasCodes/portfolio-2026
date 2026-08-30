@@ -11,7 +11,7 @@ export async function generateMetadata({ params }) {
   const project = PROJECTS.find((p) => p.slug === slug)
   if (!project || !project.caseStudy) return {}
   return {
-    title: `${project.title} — Case Study | HX Codes`,
+    title: `${project.title}, case study | HX Codes`,
     description: project.caseStudy.tagline,
   }
 }
